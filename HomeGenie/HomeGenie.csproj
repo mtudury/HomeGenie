@@ -254,6 +254,7 @@
     <Compile Include="Automation\ScriptEngineErrors.cs" />
     <Compile Include="Automation\Scripting\CodeBlockEnum.cs" />
     <Compile Include="Automation\Scripting\DataHelper.cs" />
+    <Compile Include="Automation\Scripting\MqttPersistentClientHelper.cs" />
     <Compile Include="Automation\Scripting\ScriptingHost.cs" />
     <Compile Include="Automation\Scripting\ModuleHelper.cs" />
     <Compile Include="Automation\Scripting\ModulesManager.cs" />
@@ -378,9 +379,7 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
-  <ItemGroup>
-    <Folder Include="Automation\Engines\" />
-  </ItemGroup>
+  <ItemGroup />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
