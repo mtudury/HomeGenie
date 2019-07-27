@@ -190,9 +190,7 @@ namespace HomeGenie.Automation.Scripting
             Disconnect();
         }
 
-        #region private helper methods
-
-        private void Connect()
+        public void Connect()
         {
             Disconnect();
             mqttClient = (MqttClient)factory.CreateMqttClient();
@@ -219,6 +217,7 @@ namespace HomeGenie.Automation.Scripting
             mqttClient.ConnectAsync(options);
         }
 
+        #region private helper methods
         private IMqttClientOptions GetMqttOption(string clientId)
         {
             var builder = new MqttClientOptionsBuilder()
