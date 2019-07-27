@@ -55,6 +55,42 @@ namespace HomeGenie.Automation.Scripting
         private List<TopicSubscription> subscribedTopics;
         private Action<string, string> messageCallback;
 
+        private IMqttClientOptions options;
+
+
+        public MqttPersistentClientHelper()
+        {
+            mqttClient = (MqttClient)factory.CreateMqttClient();
+            mqttClient.Connected += (sender, args) =>
+            {
+                if (subscribedTopics != null)
+                {
+                    foreach (var topic in subscribedTopics)
+                    {
+                        mqttClient.SubscribeAsync(topic.Topic, topic.Qos);
+                    }
+
+                }
+            };
+            mqttClient.Disconnected += (sender, args) =>
+            {
+                if ((args != null) && (args.Exception != null))
+                {
+                    Console.WriteLine(args.Exception.Message);
+                    if (args.Exception is MQTTnet.Exceptions.MqttCommunicationClosedGracefullyException)
+                    {
+                        // If Disconnect() is called, this event will be fired, so handle the GracefullyClosed Exception 
+                        return;
+                    }
+                }
+
+                // so not gracefully Closed ? ok so lets retry
+                Console.WriteLine("MqttPersistentClientHelper will try to reconnect in 5s");
+                Thread.Sleep(5000);
+                mqttClient.ConnectAsync(options);
+            };
+        }
+
         /// <summary>
         /// Sets the MQTT server to use.
         /// </summary>
@@ -66,6 +102,10 @@ namespace HomeGenie.Automation.Scripting
             endPoint.Port = port;
             endPoint.ClientId = clientId;
             this.messageCallback = messageCallback;
+
+            mqttClient.ApplicationMessageReceived += MessageReceived;
+            options = GetMqttOption(endPoint.ClientId);
+
             return this;
         }
 
@@ -74,13 +114,7 @@ namespace HomeGenie.Automation.Scripting
         /// </summary>
         public MqttPersistentClientHelper Disconnect()
         {
-            if (mqttClient != null)
-            {
-                var m = mqttClient;
-                mqttClient = null;
-                if (m.IsConnected) m.DisconnectAsync();
-                m.Dispose();
-            }
+            mqttClient.DisconnectAsync();
             return this;
         }
 
@@ -192,28 +226,6 @@ namespace HomeGenie.Automation.Scripting
 
         public void Connect()
         {
-            Disconnect();
-            mqttClient = (MqttClient)factory.CreateMqttClient();
-            mqttClient.Connected += (sender, args) =>
-            {
-                if (subscribedTopics != null)
-                {
-                    foreach (var topic in subscribedTopics)
-                    {
-                        mqttClient.SubscribeAsync(topic.Topic, topic.Qos);
-                    }
-
-                }
-            };
-            mqttClient.Disconnected += (sender, args) =>
-            {
-                Console.WriteLine(args.Exception.Message);
-                Disconnect();
-                Thread.Sleep(5000);
-                Connect();
-            };
-            mqttClient.ApplicationMessageReceived += MessageReceived;
-            var options = GetMqttOption(endPoint.ClientId);
             mqttClient.ConnectAsync(options);
         }
 
