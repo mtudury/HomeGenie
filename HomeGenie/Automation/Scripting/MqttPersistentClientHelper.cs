@@ -138,6 +138,24 @@ namespace HomeGenie.Automation.Scripting
         }
 
         /// <summary>
+        /// Unsubscribe the specified topic.
+        /// </summary>
+        /// <param name="topic">Topic name.</param>
+        public MqttPersistentClientHelper Unsubscribe(string topic)
+        {
+            if (subscribedTopics == null)
+                subscribedTopics = new List<TopicSubscription>();
+            if (mqttClient != null)
+            {
+                if (mqttClient.IsConnected)
+                {
+                    mqttClient.UnsubscribeAsync(topic);
+                }
+            }
+            return this;
+        }
+
+        /// <summary>
         /// Publish a message to the specified topic.
         /// </summary>
         /// <param name="topic">Topic name.</param>
@@ -170,11 +188,11 @@ namespace HomeGenie.Automation.Scripting
         /// </summary>
         /// <param name="topic">Topic name.</param>
         /// <param name="message">Message text as byte array.</param>
-        public MqttPersistentClientHelper Publish(string topic, byte[] message, int qos)
+        public MqttPersistentClientHelper Publish(string topic, string message, int qos)
         {
             if (mqttClient != null)
             {
-                mqttClient.PublishAsync(topic, Encoding.UTF8.GetString(message), (MqttQualityOfServiceLevel)qos, false);
+                mqttClient.PublishAsync(topic, message, (MqttQualityOfServiceLevel)qos, false);
             }
             return this;
         }
@@ -185,11 +203,11 @@ namespace HomeGenie.Automation.Scripting
         /// </summary>
         /// <param name="topic">Topic name.</param>
         /// <param name="message">Message text as byte array.</param>
-        public MqttPersistentClientHelper Publish(string topic, byte[] message, int qos, bool retain)
+        public MqttPersistentClientHelper Publish(string topic, string message, int qos, bool retain)
         {
             if (mqttClient != null)
             {
-                mqttClient.PublishAsync(topic, Encoding.UTF8.GetString(message), (MqttQualityOfServiceLevel)qos, retain);
+                mqttClient.PublishAsync(topic, message, (MqttQualityOfServiceLevel)qos, retain);
             }
             return this;
         }
