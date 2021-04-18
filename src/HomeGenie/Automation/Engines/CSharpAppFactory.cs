@@ -24,6 +24,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
+
 
 #if NETCOREAPP
 using System.Diagnostics;
@@ -46,6 +49,10 @@ namespace HomeGenie.Automation.Engines
     public static class CSharpAppFactory
     {
         public const int ConditionCodeOffset = 8;
+
+        public static Regex DynIncludes = new System.Text.RegularExpressions.Regex(@"//@using ([^ ]+);", RegexOptions.Compiled | RegexOptions.Singleline);
+        public static Regex DynReferences = new System.Text.RegularExpressions.Regex(@"//@reference ([^ ]+)", RegexOptions.Compiled | RegexOptions.Singleline);
+
 
         // TODO: move this to a config file
         private static readonly string[] Includes =
@@ -176,11 +183,28 @@ namespace HomeGenie.Automation.Scripting
         public ScriptingHost hg { get { return (ScriptingHost)this; } }
     }
 }";
-            var usingNs = String.Join(" ", Includes.Select(x => String.Format("using {0};" + Environment.NewLine, x)));
+
+            // Dynamic References and Usings
+            var additionalusings = DynIncludes.Matches(scriptSetup);
+            string moreusings = "";
+            foreach (Match match in additionalusings) {
+                moreusings += String.Format("using {0}; ", match.Groups[1]);
+            }
+
+            var usingNs = String.Join(" ", Includes.Select(x => String.Format("using {0}; " + Environment.NewLine, x)));
             source = source
-                .Replace("{using}", usingNs)
+                .Replace("{using}", usingNs + moreusings)
                 .Replace("{source}", scriptSource)
                 .Replace("{setup}", scriptSetup);
+
+
+            var addregexreferences = DynReferences.Matches(scriptSetup);
+            var addreferences = new List<String>();
+            foreach (Match match in addregexreferences) {
+                addreferences.Add(match.Groups[1].ToString());
+            }
+            // End Dynamic References and Usings
+
 #if NETCOREAPP
             var dotNetCoreDir = Path.GetDirectoryName(typeof(object).GetTypeInfo().Assembly.Location);
             var homeGenieDir = Path.GetDirectoryName(typeof(HomeGenieService).GetTypeInfo().Assembly.Location);
@@ -235,6 +259,11 @@ namespace HomeGenie.Automation.Scripting
                     MetadataReference.CreateFromFile(Path.Combine(homeGenieDir, "Innovative.SolarCalculator.dll"))
                 )
                 .AddSyntaxTrees(CSharpSyntaxTree.ParseText(source));
+
+            foreach (var refe in addreferences)
+            {
+                compilation = compilation.AddReferences(MetadataReference.CreateFromFile(refe));
+            }
 
             var assemblyPdbFile = outputDllFile + ".pdb";
             using var assemblyStream = File.Open(outputDllFile, FileMode.Create, FileAccess.ReadWrite);
