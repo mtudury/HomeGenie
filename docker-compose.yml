@@ -1,0 +1,15 @@
+version: '3.4'
+services:
+  homegenie:
+    image: homegenie:latest
+    container_name: homegenie
+    ports:
+      - "8080:8080"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1M"
+        max-file: "10"
