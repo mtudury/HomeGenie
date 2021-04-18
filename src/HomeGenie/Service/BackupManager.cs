@@ -240,6 +240,23 @@ namespace HomeGenie.Service
             {
                 newProgramsData = (List<ProgramBlock>)serializer.Deserialize(reader);
             }
+
+            // Clean Currently existing programs
+            Console.WriteLine("Removing Old Programs");
+            var oldprograms = new List<ProgramBlock>(homegenie.ProgramManager.Programs);
+            foreach (var currentProgram in oldprograms)
+            {
+                homegenie.ProgramManager.ProgramRemove(currentProgram);
+                // remove associated module entry
+                homegenie.Modules.RemoveAll(m => m.Domain == Domains.HomeAutomation_HomeGenie_Automation && m.Address == currentProgram.Address.ToString());
+
+                var deletedGroup = homegenie.GetGroups("Automation").Find(zn => zn.Name == currentProgram.Group);
+                homegenie.GetGroups("Automation").Remove(deletedGroup);
+            }
+            homegenie.UpdateProgramsDatabase();
+            homegenie.UpdateModulesDatabase();
+            homegenie.UpdateGroupsDatabase("Automation"); //write groups
+            
             foreach (var program in newProgramsData)
             {
                 var currentProgram = homegenie.ProgramManager.Programs.Find(p => p.Address == program.Address);
