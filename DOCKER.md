@@ -13,12 +13,12 @@ docker build -t homegenie:latest .
 
 # simple test (will not be persisted)
 
-docker run --rm -it -v /etc/localtime:/etc/localtime -p 8080:8080 homegenie:latest
+docker run --rm -it -v /etc/localtime:/etc/localtime -p 80:80 homegenie:latest
 
 
 more tests
 
-docker run --rm -it -v /etc/localtime:/etc/localtime -p 8080:8080 homegenie:latest bash
+docker run --rm -it -v /etc/localtime:/etc/localtime -p 80:80 homegenie:latest bash
 
 then run with
 

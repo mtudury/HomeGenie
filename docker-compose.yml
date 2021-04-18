@@ -4,7 +4,7 @@ services:
     image: homegenie:latest
     container_name: homegenie
     ports:
-      - "8080:8080"
+      - "80:80"
     volumes:
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
