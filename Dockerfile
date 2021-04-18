@@ -4,6 +4,8 @@ RUN apt-get update && apt-get install -y libusb-1.0
 
 COPY / /app/
 
+RUN ln -s /usr/share/dotnet/shared/Microsoft.NETCore.App/${DOTNET_VERSION} /dotnetcore
+
 RUN cd /app/src/SupportLibraries/NetClientLib/ && dotnet build --configuration Release
 
 RUN cd /app/src/HomeGenie/ && dotnet build --configuration Release

@@ -50,8 +50,8 @@ namespace HomeGenie.Automation.Engines
     {
         public const int ConditionCodeOffset = 8;
 
-        public static Regex DynIncludes = new System.Text.RegularExpressions.Regex(@"//@using ([^ ]+);", RegexOptions.Compiled | RegexOptions.Singleline);
-        public static Regex DynReferences = new System.Text.RegularExpressions.Regex(@"//@reference ([^ ]+)", RegexOptions.Compiled | RegexOptions.Singleline);
+        public static Regex DynIncludes = new System.Text.RegularExpressions.Regex(@"^//@using ([^ ]+);$", RegexOptions.Compiled | RegexOptions.Multiline);
+        public static Regex DynReferences = new System.Text.RegularExpressions.Regex(@"^//@reference ([^ \n]+)$", RegexOptions.Compiled | RegexOptions.Multiline);
 
 
         // TODO: move this to a config file
