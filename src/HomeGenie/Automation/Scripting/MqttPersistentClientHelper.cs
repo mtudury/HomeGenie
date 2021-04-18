@@ -27,8 +27,11 @@ using System.Threading;
 
 using MQTTnet;
 using MQTTnet.Client;
+using MQTTnet.Client.Options;
 using MQTTnet.Protocol;
-using MQTTnet.Serializer;
+using MQTTnet.Formatter;
+
+using NLog;
 
 namespace HomeGenie.Automation.Scripting
 {
@@ -46,6 +49,7 @@ namespace HomeGenie.Automation.Scripting
             public MqttQualityOfServiceLevel Qos;
         }
 
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private static MqttFactory factory = new MqttFactory();
         private NetworkCredential networkCredential = null;
         private MqttEndPoint endPoint = new MqttEndPoint();
@@ -61,34 +65,20 @@ namespace HomeGenie.Automation.Scripting
         public MqttPersistentClientHelper()
         {
             mqttClient = (MqttClient)factory.CreateMqttClient();
-            mqttClient.Connected += (sender, args) =>
+            mqttClient.UseConnectedHandler(async e =>
             {
                 if (subscribedTopics != null)
                 {
                     foreach (var topic in subscribedTopics)
                     {
-                        mqttClient.SubscribeAsync(topic.Topic, topic.Qos);
+                        await mqttClient.SubscribeAsync(topic.Topic, topic.Qos);
                     }
-
                 }
-            };
-            mqttClient.Disconnected += (sender, args) =>
+            });
+            mqttClient.UseDisconnectedHandler(async e =>
             {
-                if ((args != null) && (args.Exception != null))
-                {
-                    Console.WriteLine(args.Exception.Message);
-                    if (args.Exception is MQTTnet.Exceptions.MqttCommunicationClosedGracefullyException)
-                    {
-                        // If Disconnect() is called, this event will be fired, so handle the GracefullyClosed Exception 
-                        return;
-                    }
-                }
-
-                // so not gracefully Closed ? ok so lets retry
-                Console.WriteLine("MqttPersistentClientHelper will try to reconnect in 5s");
-                Thread.Sleep(5000);
-                mqttClient.ConnectAsync(options);
-            };
+                Log.Debug(e.Exception,"MqttClient Error");
+            });
         }
 
         /// <summary>
@@ -103,7 +93,7 @@ namespace HomeGenie.Automation.Scripting
             endPoint.ClientId = clientId;
             this.messageCallback = messageCallback;
 
-            mqttClient.ApplicationMessageReceived += MessageReceived;
+            mqttClient.UseApplicationMessageReceivedHandler(e => MessageReceived(e));
             options = GetMqttOption(endPoint.ClientId);
 
             return this;
@@ -283,7 +273,7 @@ namespace HomeGenie.Automation.Scripting
             return builder.Build();
         }
 
-        public void MessageReceived(object sender, MqttApplicationMessageReceivedEventArgs args)
+        public void MessageReceived(MqttApplicationMessageReceivedEventArgs args)
         {
             var msg = Encoding.UTF8.GetString(args.ApplicationMessage.Payload);
             messageCallback(args.ApplicationMessage.Topic, msg);
