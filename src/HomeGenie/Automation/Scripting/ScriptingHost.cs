@@ -55,6 +55,7 @@ namespace HomeGenie.Automation.Scripting
             TcpClient = new TcpClientHelper();
             UdpClient = new UdpClientHelper();
             MqttClient = new MqttClientHelper();
+            MqttPersistentClient = new MqttPersistentClientHelper();
             KnxClient = new KnxClientHelper();
             Scheduler = new SchedulerHelper(hgService);
         }
@@ -98,6 +99,8 @@ namespace HomeGenie.Automation.Scripting
         public UdpClientHelper UdpClient { get; private set; }
 
         public MqttClientHelper MqttClient { get; private set; }
+
+        public MqttPersistentClientHelper MqttPersistentClient { get; private set; }
 
         public KnxClientHelper KnxClient { get; private set; }
 

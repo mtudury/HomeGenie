@@ -323,25 +323,40 @@ namespace HomeGenie.Automation.Scripting
             compilerParams.ReferencedAssemblies.Add("NLog.dll");
             compilerParams.ReferencedAssemblies.Add("Newtonsoft.Json.dll");
 
-            compilerParams.ReferencedAssemblies.Add("SerialPortLib.dll");
-            compilerParams.ReferencedAssemblies.Add("NetClientLib.dll");
+            if (scriptSetup.StartsWith("//@rawcsharpscript")) {
+                var scriptSetupReferences = scriptSetup.Replace("\r", "").Split('\n');
 
-            compilerParams.ReferencedAssemblies.Add("UPnP.dll");
+                foreach(var reference in scriptSetupReferences)
+                {
+                    if (reference.StartsWith("Reference="))
+                    compilerParams.ReferencedAssemblies.Add(reference.Substring(10));
+                }
 
-            compilerParams.ReferencedAssemblies.Add("MQTTnet.dll");
-
-            //if (Raspberry.Board.Current.IsRaspberryPi)
-            {
-                compilerParams.ReferencedAssemblies.Add("Raspberry.IO.dll");
-                compilerParams.ReferencedAssemblies.Add("Raspberry.IO.Components.dll");
-                compilerParams.ReferencedAssemblies.Add("Raspberry.IO.GeneralPurpose.dll");
-                compilerParams.ReferencedAssemblies.Add("Raspberry.IO.InterIntegratedCircuit.dll");
-                compilerParams.ReferencedAssemblies.Add("Raspberry.IO.SerialPeripheralInterface.dll");
-                compilerParams.ReferencedAssemblies.Add("Raspberry.System.dll");
+                source = scriptSource;
             }
+            else
+            {
+                compilerParams.ReferencedAssemblies.Add("SerialPortLib.dll");
+                compilerParams.ReferencedAssemblies.Add("NetClientLib.dll");
 
-            compilerParams.ReferencedAssemblies.Add(Path.Combine("Innovative.Geometry.Angle.dll"));
-            compilerParams.ReferencedAssemblies.Add(Path.Combine("Innovative.SolarCalculator.dll"));
+                compilerParams.ReferencedAssemblies.Add("UPnP.dll");
+                compilerParams.ReferencedAssemblies.Add("MQTTnet.dll");
+
+                //if (Raspberry.Board.Current.IsRaspberryPi)
+                {
+                    compilerParams.ReferencedAssemblies.Add("Raspberry.IO.dll");
+                    compilerParams.ReferencedAssemblies.Add("Raspberry.IO.Components.dll");
+                    compilerParams.ReferencedAssemblies.Add("Raspberry.IO.GeneralPurpose.dll");
+                    compilerParams.ReferencedAssemblies.Add("Raspberry.IO.InterIntegratedCircuit.dll");
+                    compilerParams.ReferencedAssemblies.Add("Raspberry.IO.SerialPeripheralInterface.dll");
+                    compilerParams.ReferencedAssemblies.Add("Raspberry.System.dll");
+                    compilerParams.ReferencedAssemblies.Add("UnitsNet.dll");
+                }
+
+                compilerParams.ReferencedAssemblies.Add(Path.Combine("lib", "shared", "Innovative.Geometry.dll"));
+                compilerParams.ReferencedAssemblies.Add(Path.Combine("lib", "shared", "Innovative.SolarCalculator.dll"));
+
+            }
 
             // compile and generate script assembly
             return provider.CompileAssemblyFromSource(compilerParams, source);
