@@ -279,13 +279,13 @@ namespace HomeGenie.Automation.Scripting
 
             if (result.Success)
             {
-                Console.WriteLine("Success");
+                Console.WriteLine("Compilation : Success");
                 // TODO:
             }
             else
             {
                 // TODO:
-                Console.WriteLine("Not Success !");
+                Console.WriteLine("Compilation : Not Success !");
                 foreach (var item in result.Diagnostics)
                 {
                     Console.WriteLine(item.ToString());
