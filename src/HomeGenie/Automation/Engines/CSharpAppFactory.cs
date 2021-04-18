@@ -69,7 +69,6 @@ namespace HomeGenie.Automation.Engines
             "HomeGenie.Automation",
             "HomeGenie.Data",
             "NetClientLib",
-            "OnvifDiscovery.Models",
             "MIG",
             "CM19Lib", "X10 = CM19Lib.X10",
             "Innovative.Geometry",
@@ -224,7 +223,6 @@ namespace HomeGenie.Automation.Scripting
                     MetadataReference.CreateFromFile(Path.Combine(homeGenieDir, "NetClientLib.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(homeGenieDir, "UPnP.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(homeGenieDir, "MQTTnet.dll")),
-                    MetadataReference.CreateFromFile(Path.Combine(homeGenieDir, "OnvifDiscovery.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(homeGenieDir, "Raspberry.IO.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(homeGenieDir, "Raspberry.IO.Components.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(homeGenieDir, "Raspberry.IO.GeneralPurpose.dll")),
@@ -252,11 +250,17 @@ namespace HomeGenie.Automation.Scripting
 
             if (result.Success)
             {
+                Console.WriteLine("Success");
                 // TODO:
             }
             else
             {
                 // TODO:
+                Console.WriteLine("Not Success !");
+                foreach (var item in result.Diagnostics)
+                {
+                    Console.WriteLine(item.ToString());
+                }
             }
             return result;
 #else
@@ -329,7 +333,6 @@ namespace HomeGenie.Automation.Scripting
             compilerParams.ReferencedAssemblies.Add("SerialPortLib.dll");
             compilerParams.ReferencedAssemblies.Add("NetClientLib.dll");
 
-            compilerParams.ReferencedAssemblies.Add("OnvifDiscovery.dll");
 
             compilerParams.ReferencedAssemblies.Add("UPnP.dll");
 

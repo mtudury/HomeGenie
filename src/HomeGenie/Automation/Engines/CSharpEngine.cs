@@ -141,6 +141,7 @@ namespace HomeGenie.Automation.Engines
             {
                 // report errors during post-compilation process
                 //result.Errors.Add(new System.CodeDom.Compiler.CompilerError(ProgramBlock.Name, 0, 0, "-1", ex.Message));
+                Console.WriteLine(ex.ToString());
             }
 
             if (result != null && !result.Success)
