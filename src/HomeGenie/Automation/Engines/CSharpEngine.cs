@@ -200,11 +200,6 @@ namespace HomeGenie.Automation.Engines
                         errorRow -= (sourceLines + CSharpAppFactory.ConditionCodeOffset);
                         blockType = CodeBlockEnum.TC;
                     }
-                    if (ProgramBlock.ScriptSetup.StartsWith("//@rawcsharpscript"))
-                    {
-                        errorRow = error.Line;
-                        blockType = CodeBlockEnum.CR;
-                    }
                     if (!error.IsWarning)
                     {
                         errors.Add(new ProgramError
@@ -333,19 +328,9 @@ namespace HomeGenie.Automation.Engines
                 var sourceLines = ProgramBlock.ScriptSource.Split('\n').Length;
                 error.Line -= (CSharpAppFactory.ConditionCodeOffset + CSharpAppFactory.ProgramCodeOffset + sourceLines);
             }
-            else {
-                if (!ProgramBlock.ScriptSetup.StartsWith("//@rawcsharpscript"))
-                {
-                    if (isTriggerBlock)
-                    {
-                        var sourceLines = ProgramBlock.ScriptSource.Split('\n').Length;
-                        error.Line -= (CSharpAppFactory.ConditionCodeOffset + CSharpAppFactory.ProgramCodeOffset + sourceLines);
-                    }
-                    else
-                    {
-                        error.Line -= CSharpAppFactory.ProgramCodeOffset;
-                    }
-                }
+            else
+            {
+                error.Line -= CSharpAppFactory.ProgramCodeOffset;
             }
             return error;
         }
