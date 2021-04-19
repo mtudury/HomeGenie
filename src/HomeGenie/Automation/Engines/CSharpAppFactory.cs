@@ -196,6 +196,11 @@ namespace HomeGenie.Automation.Scripting
                 .Replace("{using}", usingNs + moreusings)
                 .Replace("{source}", scriptSource)
                 .Replace("{setup}", scriptSetup);
+            
+            if (scriptSource.StartsWith("//@rawcsharpscript"))
+            {
+                source = scriptSource;
+            }
 
 
             var addregexreferences = DynReferences.Matches(scriptSetup);
