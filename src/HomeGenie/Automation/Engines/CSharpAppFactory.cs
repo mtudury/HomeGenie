@@ -197,7 +197,7 @@ namespace HomeGenie.Automation.Scripting
                 .Replace("{source}", scriptSource)
                 .Replace("{setup}", scriptSetup);
             
-            if (scriptSource.StartsWith("//@rawcsharpscript"))
+            if (scriptSetup.StartsWith("//@rawcsharpscript"))
             {
                 source = scriptSource;
             }
