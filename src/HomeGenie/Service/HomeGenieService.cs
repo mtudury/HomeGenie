@@ -836,7 +836,7 @@ namespace HomeGenie.Service
             try
             {
                 var serializer = new XmlSerializer(typeof(List<Group>));
-                using (var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "groups.xml")))
+                using (var reader = new StreamReader(Path.Combine(Utility.GetDataBasePath(), "groups.xml")))
                     controlGroups = (List<Group>)serializer.Deserialize(reader);
             }
             catch
@@ -848,7 +848,7 @@ namespace HomeGenie.Service
             try
             {
                 var serializer = new XmlSerializer(typeof(List<Group>));
-                using (var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "automationgroups.xml")))
+                using (var reader = new StreamReader(Path.Combine(Utility.GetDataBasePath(), "automationgroups.xml")))
                     automationGroups = (List<Group>)serializer.Deserialize(reader);
             }
             catch
@@ -866,7 +866,7 @@ namespace HomeGenie.Service
             masterControlProgram = new ProgramManager(this);
             try
             {
-                string programsDatabase = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "programs.xml");
+                string programsDatabase = Path.Combine(Utility.GetDataBasePath(), "programs.xml");
                 var serializer = new XmlSerializer(typeof(List<ProgramBlock>));
                 using (var reader = new StreamReader(programsDatabase))
                 {
@@ -900,7 +900,7 @@ namespace HomeGenie.Service
             try
             {
                 var serializer = new XmlSerializer(typeof(List<SchedulerItem>));
-                using (var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scheduler.xml")))
+                using (var reader = new StreamReader(Path.Combine(Utility.GetDataBasePath(), "scheduler.xml")))
                 {
                     var schedulerItems = (List<SchedulerItem>)serializer.Deserialize(reader);
                     masterControlProgram.SchedulerService.Items.AddRange(schedulerItems);
@@ -1334,7 +1334,7 @@ namespace HomeGenie.Service
             {
                 // load config
                 var serializer = new XmlSerializer(typeof(SystemConfiguration));
-                using (var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "systemconfig.xml")))
+                using (var reader = new StreamReader(Path.Combine(Utility.GetDataBasePath(), "systemconfig.xml")))
                 {
                     systemConfiguration = (SystemConfiguration)serializer.Deserialize(reader);
                     // setup logging
@@ -1390,7 +1390,7 @@ namespace HomeGenie.Service
             try
             {
                 var serializer = new XmlSerializer(typeof(HomeGenie.Service.TsList<Module>));
-                using (var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "modules.xml")))
+                using (var reader = new StreamReader(Path.Combine(Utility.GetDataBasePath(), "modules.xml")))
                 {
                     var modules = (HomeGenie.Service.TsList<Module>)serializer.Deserialize(reader);
                     foreach (var module in modules)

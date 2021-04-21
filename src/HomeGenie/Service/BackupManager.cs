@@ -70,12 +70,15 @@ namespace HomeGenie.Service
                 }
             }
             // Add system config files
-            Utility.AddFileToZip(archiveName, "systemconfig.xml");
-            Utility.AddFileToZip(archiveName, "automationgroups.xml");
-            Utility.AddFileToZip(archiveName, "modules.xml");
-            Utility.AddFileToZip(archiveName, "programs.xml");
-            Utility.AddFileToZip(archiveName, "scheduler.xml");
-            Utility.AddFileToZip(archiveName, "groups.xml");
+            if (Directory.Exists(Utility.DatabaseFolderName))
+            {
+                var files = Directory.EnumerateFiles(Utility.DatabaseFolderName)
+                    .ToList();
+                foreach (string f in files)
+                {
+                    Utility.AddFileToZip(archiveName, f);
+                }
+            }
             if (File.Exists("release_info.xml"))
             {
                 Utility.AddFileToZip(archiveName, "release_info.xml");
@@ -100,13 +103,22 @@ namespace HomeGenie.Service
             }
         }
 
+        public static string GetBackupDbFile(string archiveFolder, string filename)
+        {
+            bool predbfolder = ! File.Exists(Path.Combine(archiveFolder, Utility.GetRelativeDataBasePath("modules.xml")));
+            if (predbfolder)
+                return Path.Combine(archiveFolder, filename);
+            return Path.Combine(archiveFolder, Utility.GetRelativeDataBasePath(filename));
+        }
+
         public bool RestoreConfiguration(string archiveFolder, string selectedPrograms)
         {
             bool success = true;
             // Import automation groups
             List<Group> automationGroups;
+
             var serializer = new XmlSerializer(typeof(List<Group>));
-            using (var reader = new StreamReader(Path.Combine(archiveFolder, "automationgroups.xml")))
+            using (var reader = new StreamReader(GetBackupDbFile(archiveFolder, "automationgroups.xml")))
             {
                 automationGroups = (List<Group>)serializer.Deserialize(reader);
             }
@@ -127,7 +139,7 @@ namespace HomeGenie.Service
             }
             homegenie.UpdateGroupsDatabase("Automation");
             // Copy system configuration files
-            File.Copy(Path.Combine(archiveFolder, "groups.xml"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "groups.xml"), true);
+            File.Copy(GetBackupDbFile(archiveFolder, "groups.xml"), Path.Combine(Utility.GetDataBasePath(), "groups.xml"), true);
             homegenie.RaiseEvent(
                 Domains.HomeGenie_System,
                 Domains.HomeGenie_BackupRestore,
@@ -136,7 +148,7 @@ namespace HomeGenie.Service
                 Properties.InstallProgressMessage,
                 "= Restored: Control Groups"
             );
-            File.Copy(Path.Combine(archiveFolder, "modules.xml"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "modules.xml"), true);
+            File.Copy(GetBackupDbFile(archiveFolder, "modules.xml"), Path.Combine(Utility.GetDataBasePath(), "modules.xml"), true);
             homegenie.RaiseEvent(
                 Domains.HomeGenie_System,
                 Domains.HomeGenie_BackupRestore,
@@ -145,7 +157,7 @@ namespace HomeGenie.Service
                 Properties.InstallProgressMessage,
                 "= Restored: Modules"
             );
-            File.Copy(Path.Combine(archiveFolder, "scheduler.xml"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scheduler.xml"), true);
+            File.Copy(GetBackupDbFile(archiveFolder, "scheduler.xml"), Path.Combine(Utility.GetDataBasePath(), "scheduler.xml"), true);
             homegenie.RaiseEvent(
                 Domains.HomeGenie_System,
                 Domains.HomeGenie_BackupRestore,
@@ -233,7 +245,7 @@ namespace HomeGenie.Service
             homegenie.SoftReload();
             // Restore user-space automation programs
             serializer = new XmlSerializer(typeof(List<ProgramBlock>));
-            string programsDatabase = Path.Combine(archiveFolder, "programs.xml");
+            string programsDatabase = GetBackupDbFile(archiveFolder, "programs.xml");
 
             List<ProgramBlock> newProgramsData;
             using (var reader = new StreamReader(programsDatabase))
@@ -331,8 +343,8 @@ namespace HomeGenie.Service
         // Backward compatibility method for HG < 1.1
         private bool UpdateSystemConfig(string configPath)
         {
-            string configFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "systemconfig.xml");
-            File.Copy(Path.Combine(configPath, "systemconfig.xml"), configFile, true);
+            string configFile = Path.Combine(Utility.GetDataBasePath(), "systemconfig.xml");
+            File.Copy(GetBackupDbFile(configPath, "systemconfig.xml"), configFile, true);
             return true;
         }
 

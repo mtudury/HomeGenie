@@ -98,6 +98,11 @@ namespace HomeGenie
                     "CM19Lib.dll",
                     "ZWaveLib.dll"
                 };
+                string databaseFolder = Utility.GetDataBasePath();
+                if (!Directory.Exists(databaseFolder))
+                {
+                    Directory.CreateDirectory(databaseFolder);
+                }
                 string migFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lib", "mig");
                 if (!Directory.Exists(migFolder))
                 {
