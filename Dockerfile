@@ -13,5 +13,7 @@ RUN cd /app/src/HomeGenie/ && dotnet build --configuration Release
 
 RUN cp ./lib/x86_64-linux-gnu/libusb-1.0.so.0 /app/src/HomeGenie/bin/Release/netcoreapp5/
 
-CMD cd /app/src/HomeGenie/bin/Release/netcoreapp5 && ./HomeGenie 
+RUN ln -s /app/src/HomeGenie/bin/Release/netcoreapp5 /app/bin
+
+CMD cd /app/bin && ./HomeGenie 
 
