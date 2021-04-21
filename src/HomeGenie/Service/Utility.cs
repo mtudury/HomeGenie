@@ -173,13 +173,23 @@ namespace HomeGenie.Service
             return new DynamicXmlParser(root);
         }
 
+        public const string DatabaseFolderName = "db";
+        public static string GetDataBasePath()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DatabaseFolderName);
+        }
+
+        public static string GetRelativeDataBasePath(string filename) {
+            return Path.Combine(DatabaseFolderName, filename);
+        }
+
         public static bool UpdateXmlDatabase<T>(T items, string filename, Func<Type,Exception,bool> callback)
         {
             bool success = false;
             XmlWriter writer = null;
             try
             {
-                string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
+                string filePath = Path.Combine(GetDataBasePath(), filename);
                 if (File.Exists(filePath))
                 {
                     File.Delete(filePath);

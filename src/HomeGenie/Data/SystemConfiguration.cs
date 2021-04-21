@@ -77,7 +77,7 @@ namespace HomeGenie.Data
                         }
                     }
                 }
-                string fname = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "systemconfig.xml");
+                string fname = Path.Combine(Utility.GetDataBasePath(), "systemconfig.xml");
                 if (File.Exists(fname))
                 {
                     File.Delete(fname);
