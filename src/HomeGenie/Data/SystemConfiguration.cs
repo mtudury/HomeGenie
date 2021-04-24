@@ -58,25 +58,6 @@ namespace HomeGenie.Data
             bool success = false;
             try
             {
-                var syscopy = this.DeepClone();
-                foreach (ModuleParameter p in syscopy.HomeGenie.Settings)
-                {
-                    if (p.GetData() is string)
-                    {
-                        string stringValue = p.Value;
-                        try
-                        {
-                            if (!String.IsNullOrEmpty(stringValue))
-                            {
-                                p.Value = StringCipher.Encrypt(stringValue, GetPassPhrase());
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            // TODO: log
-                        }
-                    }
-                }
                 string fname = Path.Combine(Utility.GetDataBasePath(), "systemconfig.xml");
                 if (File.Exists(fname))
                 {
@@ -85,10 +66,10 @@ namespace HomeGenie.Data
                 System.Xml.XmlWriterSettings ws = new System.Xml.XmlWriterSettings();
                 ws.Indent = true;
                 ws.Encoding = Encoding.UTF8;
-                System.Xml.Serialization.XmlSerializer x = new System.Xml.Serialization.XmlSerializer(syscopy.GetType());
+                System.Xml.Serialization.XmlSerializer x = new System.Xml.Serialization.XmlSerializer(this.GetType());
                 using (var wri = System.Xml.XmlWriter.Create(fname, ws))
                 {
-                    x.Serialize(wri, syscopy);
+                    x.Serialize(wri, this);
                 }
                 success = true;
             }

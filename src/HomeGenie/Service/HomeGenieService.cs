@@ -663,28 +663,7 @@ namespace HomeGenie.Service
             {
                 try
                 {
-                    // Due to encrypted values, we must clone modules before encrypting and saving
-                    var clonedModules = systemModules.DeepClone();
-                    foreach (var module in clonedModules)
-                    {
-                        foreach (var parameter in module.Properties)
-                        {
-                            // these four properties have to be kept in clear text
-                            if (parameter.Name != Properties.WidgetDisplayModule
-                                && parameter.Name != Properties.VirtualModuleParentId
-                                && parameter.Name != Properties.ProgramStatus
-                                && parameter.Name != Properties.RuntimeError
-                                && parameter.GetData() is string)
-                            {
-                                string stringValue = parameter.Value;
-                                if (!string.IsNullOrEmpty(stringValue))
-                                {
-                                    parameter.Value = StringCipher.Encrypt(stringValue, GetPassPhrase());
-                                }
-                            }
-                        }
-                    }
-                    success = Utility.UpdateXmlDatabase(clonedModules, "modules.xml", UpdateDatabaseErrorHandler);
+                    success = Utility.UpdateXmlDatabase(systemModules, "modules.xml", UpdateDatabaseErrorHandler);
                 }
                 catch (Exception ex)
                 {
@@ -1350,7 +1329,10 @@ namespace HomeGenie.Service
                     migService.Configuration = systemConfiguration.MigService;
                     // Set the password for decrypting settings values and later module parameters
                     systemConfiguration.SetPassPhrase(GetPassPhrase());
+
                     // decrypt config data
+                    // this block is kept for back compatibility
+                    // it should be removed later
                     foreach (var parameter in systemConfiguration.HomeGenie.Settings)
                     {
                         // TODO: this is duplicate code
@@ -1369,6 +1351,7 @@ namespace HomeGenie.Service
                             _log.Error(ex);
                         }
                     }
+                    // end of back compatibility block
                 }
             }
             catch (Exception ex)
@@ -1393,6 +1376,9 @@ namespace HomeGenie.Service
                 using (var reader = new StreamReader(Path.Combine(Utility.GetDataBasePath(), "modules.xml")))
                 {
                     var modules = (HomeGenie.Service.TsList<Module>)serializer.Deserialize(reader);
+
+                    // this block is kept for back compatibility
+                    // it  should be removed later
                     foreach (var module in modules)
                     {
                         foreach (var parameter in module.Properties)
@@ -1414,6 +1400,8 @@ namespace HomeGenie.Service
                             }
                         }
                     }
+                    // end of back compatibility block
+
                     modulesGarbage.Clear();
                     systemModules.Clear();
                     systemModules = modules;
