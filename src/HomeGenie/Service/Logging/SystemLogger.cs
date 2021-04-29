@@ -48,6 +48,8 @@ namespace HomeGenie.Service.Logging
         private static StreamWriter standardOutput;
         private static DateTime lastFlushed = DateTime.Now;
 
+        private static bool onlyToConsole = false;
+
         /// <summary>
         /// Private constructor to prevent instance creation
         /// </summary>
@@ -55,6 +57,9 @@ namespace HomeGenie.Service.Logging
         {
             standardOutput = new StreamWriter(Console.OpenStandardOutput());
             standardOutput.AutoFlush = true;
+
+            // check if File.Exists("/.dockerenv") works on windows is needed, but this is not the target
+            onlyToConsole = File.Exists("/.dockerenv");
         }
 
         /// <summary>
@@ -81,6 +86,8 @@ namespace HomeGenie.Service.Logging
         public void WriteToLog(String logEntry)
         {
             standardOutput.WriteLine(logEntry);
+            if (onlyToConsole)
+                return;
             ThreadPool.QueueUserWorkItem(new WaitCallback((state)=>{
                 lock (logQueue)
                 {
